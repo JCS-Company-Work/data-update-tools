@@ -3,8 +3,14 @@
 
 namespace DataUpdateTools;
 
+use DataUpdateTools\Tools\JsonUpdater\JsonUpdater;
+
+
 class Plugin {
     public function boot() {
-        // Plugin boot logic here
+
+        // Register JsonUpdater tool
+        (new JsonUpdater())->register();
+
     }
 }
