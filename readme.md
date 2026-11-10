@@ -20,6 +20,10 @@ Run the **Deploy to Live** GitHub Actions workflow manually and select the branc
 Configure these GitHub Actions secrets for the repository:
 
 - `DEPLOY_SSH_KEY`: private SSH key for deployment.
+- `DEPLOY_SSH_PASSPHRASE`: passphrase for the private key.
+
+Set these repository variables:
+
 - `SSH_HOST`: live server hostname.
 - `PT_SSH_USER`: SSH user.
 
