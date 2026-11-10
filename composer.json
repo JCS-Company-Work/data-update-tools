@@ -1,0 +1,15 @@
+{
+  "name": "neilwilliams/data-update-tools",
+  "autoload": {
+    "psr-4": {
+      "DataUpdateTools\\": "src/"
+    }
+  },
+  "authors": [
+    {
+      "name": "Neil Williams",
+      "email": "hello@neilwilliams.dev"
+    }
+  ],
+  "require": {}
+}
