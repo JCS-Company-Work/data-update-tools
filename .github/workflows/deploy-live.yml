@@ -1,0 +1,65 @@
+name: Deploy to Live
+
+on:
+    workflow_dispatch:
+        inputs:
+            ref:
+                description: "Branch, tag or commit to deploy to production"
+                required: true
+                default: "main"
+
+jobs:
+    deploy:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+              with:
+                  ref: ${{ inputs.ref }}
+
+            - name: Install production dependencies
+              run: composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
+
+            - name: Configure SSH
+              env:
+                  DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+                  SSH_HOST: ${{ vars.SSH_HOST }}
+              run: |
+                  mkdir -p ~/.ssh
+                  printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/github_actions_deploy_key
+                  chmod 600 ~/.ssh/github_actions_deploy_key
+                  ssh-keyscan -H "$SSH_HOST" >> ~/.ssh/known_hosts
+
+            - name: Deploy to Live
+              env:
+                  SSH_HOST: ${{ vars.SSH_HOST }}
+                  PT_SSH_USER: ${{ vars.PT_SSH_USER }}
+                  LIVE_DEPLOY_PATH: ${{ vars.LIVE_DEPLOY_PATH }}
+              run: |
+                  destination="${LIVE_DEPLOY_PATH%/}"
+                  if [[ "$destination" != /*/data-update-tools ]]; then
+                    echo "LIVE_DEPLOY_PATH must be an absolute path ending in /data-update-tools." >&2
+                    exit 1
+                  fi
+
+                  rsync -azc --delete \
+                    --omit-dir-times \
+                    --no-times \
+                    --no-perms \
+                    --no-owner \
+                    --no-group \
+                    --exclude=".git" \
+                    --exclude=".github" \
+                    --exclude=".env" \
+                    --exclude=".DS_Store" \
+                    --exclude="tests/" \
+                    --exclude=".gitignore" \
+                    --exclude="readme.md" \
+                    --exclude=".phpunit.result.cache" \
+                    -e "ssh -i ~/.ssh/github_actions_deploy_key" \
+                    ./ \
+                    "$PT_SSH_USER@$SSH_HOST:$destination/"
+
+            - name: Complete
+              run: echo "Live deployment complete."

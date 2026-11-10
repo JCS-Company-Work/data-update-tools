@@ -13,6 +13,20 @@ assets/                    Front-end scripts
 
 Classes are autoloaded via Composer (PSR-4, `DataUpdateTools\` => `src/`). Run `composer install` after cloning.
 
+## Deployment
+
+Run the **Deploy to Live** GitHub Actions workflow manually and select the branch, tag or commit to deploy. It installs production Composer dependencies, including the autoloader, before syncing the plugin to the server.
+
+Configure these GitHub Actions secrets for the repository:
+
+- `DEPLOY_SSH_KEY`: private SSH key for deployment.
+- `SSH_HOST`: live server hostname.
+- `PT_SSH_USER`: SSH user.
+
+Set the repository variable `LIVE_DEPLOY_PATH` to the absolute path of this plugin's directory, ending in `/data-update-tools` (not the parent plugins directory). The deployment uses `rsync --delete` to remove files in that directory which are no longer in the deployment; excluded files are preserved.
+
+The server must also have `office/shared/ResourcesApi.php` and its API configuration available; they are outside this plugin and are not deployed by this workflow.
+
 ## Tools
 
 ### JSON Updater
