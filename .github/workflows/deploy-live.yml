@@ -28,8 +28,8 @@ jobs:
                   SSH_HOST: ${{ vars.SSH_HOST }}
               run: |
                   mkdir -p ~/.ssh
-                  printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/github_actions_deploy_key
-                  chmod 600 ~/.ssh/github_actions_deploy_key
+                  printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/data_update_tools_deploy
+                  chmod 600 ~/.ssh/data_update_tools_deploy
                   ssh-keyscan -H "$SSH_HOST" >> ~/.ssh/known_hosts
 
                   eval "$(ssh-agent -s)"
@@ -42,7 +42,7 @@ jobs:
                   EOF
                   chmod 700 "$RUNNER_TEMP/ssh-askpass"
                   DISPLAY=:0 SSH_ASKPASS="$RUNNER_TEMP/ssh-askpass" SSH_ASKPASS_REQUIRE=force \
-                    ssh-add ~/.ssh/github_actions_deploy_key </dev/null
+                    ssh-add ~/.ssh/data_update_tools_deploy </dev/null
 
             - name: Deploy to Live
               env:
