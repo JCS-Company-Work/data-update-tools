@@ -2,6 +2,7 @@
 /**
  * Plugin Name: PT Hub Data Update Tools
  * Description: Data update tools for PT Hub.
+ * Author: Porcelain Tiles
  * Version: 1.0.0
  */
 

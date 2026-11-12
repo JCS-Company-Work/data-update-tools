@@ -1,0 +1,48 @@
+.dupt-spinner {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  margin-left: 0.5em;
+  vertical-align: middle;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 0.25s ease,
+    visibility 0.25s;
+  animation: dupt-spin 0.7s linear infinite;
+}
+
+.dupt-spinner.is-active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.json-updater-wrapper .outcome-message,
+.sample-request-update-wrapper .outcome-message {
+  min-height: 1.5em;
+  margin-top: 0.5em;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.json-updater-wrapper .outcome-message.is-active,
+.sample-request-update-wrapper .outcome-message.is-active {
+  opacity: 1;
+}
+
+#wiki-nav {
+  display: none;
+}
+
+.post-title {
+  padding-bottom: 0 !important;
+}
+
+@keyframes dupt-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

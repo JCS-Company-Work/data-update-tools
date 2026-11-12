@@ -38,6 +38,8 @@ class JsonUpdater {
         // Enqueue the JSON updater script
         wp_enqueue_script( 'dupt-json-updater', DUPT_URL . 'assets/json-updater.js', [], DUPT_VERSION, true );
 
+        wp_enqueue_style( 'dupt-tools', DUPT_URL . 'assets/tools.css', [], DUPT_VERSION );
+
         // Localize script with AJAX configuration
         wp_localize_script( 'dupt-json-updater', 'jsonUpdaterConfig', [
             'ajaxUrl' => admin_url( 'admin-ajax.php' ),
@@ -52,7 +54,8 @@ class JsonUpdater {
                         <option value="allpending">All (including pending)</option>
                     </select>
                     <button id="save-json" type="button">Update Tile Data</button>
-                    <div class="outcome-message" hidden></div>
+                    <span class="dupt-spinner"></span>
+                    <div class="outcome-message"></div>
 
                 </div>';
     }

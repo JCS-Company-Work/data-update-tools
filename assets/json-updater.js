@@ -3,10 +3,14 @@ const select = document.getElementById("brand-select");
 const outcome = document.querySelector(
   ".json-updater-wrapper .outcome-message",
 );
+const spinner = document.querySelector(".json-updater-wrapper .dupt-spinner");
+let outcomeTimer;
 
-if (button && select && outcome) {
+if (button && select && outcome && spinner) {
   button.addEventListener("click", async () => {
     button.disabled = true;
+    spinner.classList.add("is-active");
+    outcome.classList.remove("is-active");
 
     try {
       const response = await fetch(jsonUpdaterConfig.ajaxUrl, {
@@ -28,12 +32,16 @@ if (button && select && outcome) {
       showOutcome(error.message, false);
     } finally {
       button.disabled = false;
+      spinner.classList.remove("is-active");
     }
   });
 }
 
 function showOutcome(message, success) {
-  outcome.hidden = false;
-  outcome.className = `${success ? "success" : "failure"}`;
+  clearTimeout(outcomeTimer);
+  outcome.className = `outcome-message is-active ${success ? "success" : "failure"}`;
   outcome.textContent = message;
+  outcomeTimer = setTimeout(() => {
+    outcome.classList.remove("is-active");
+  }, 3000);
 }
