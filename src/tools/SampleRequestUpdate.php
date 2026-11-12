@@ -1,6 +1,6 @@
 <?php
 
-namespace DataUpdateTools\Tools\SampleRequestUpdate;
+namespace DataUpdateTools\Tools;
 
 class SampleRequestUpdate {
 

@@ -21,7 +21,8 @@
 }
 
 .json-updater-wrapper .outcome-message,
-.sample-request-update-wrapper .outcome-message {
+.sample-request-update-wrapper .outcome-message,
+.product-finder-update-wrapper .outcome-message {
   min-height: 1.5em;
   margin-top: 0.5em;
   opacity: 0;
@@ -29,7 +30,8 @@
 }
 
 .json-updater-wrapper .outcome-message.is-active,
-.sample-request-update-wrapper .outcome-message.is-active {
+.sample-request-update-wrapper .outcome-message.is-active,
+.product-finder-update-wrapper .outcome-message.is-active {
   opacity: 1;
 }
 

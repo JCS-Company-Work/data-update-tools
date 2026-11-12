@@ -2,6 +2,7 @@
   "name": "neilwilliams/data-update-tools",
   "autoload": {
     "psr-4": {
+      "DataUpdateTools\\Tools\\": "src/tools/",
       "DataUpdateTools\\": "src/"
     }
   },
@@ -11,5 +12,20 @@
       "email": "hello@neilwilliams.dev"
     }
   ],
-  "require": {}
+  "require": {},
+  "autoload-dev": {
+    "psr-4": {
+      "DataUpdateTools\\Tests\\": "tests/"
+    }
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^10.5",
+    "brain/monkey": "^2.6"
+  },
+  "config": {
+    "allow-plugins": {}
+  },
+  "scripts": {
+    "test": "phpunit"
+  }
 }

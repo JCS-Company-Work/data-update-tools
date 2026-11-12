@@ -3,8 +3,9 @@
 
 namespace DataUpdateTools;
 
-use DataUpdateTools\Tools\JsonUpdater\JsonUpdater;
-use DataUpdateTools\Tools\SampleRequestUpdate\SampleRequestUpdate;
+use DataUpdateTools\Tools\JsonUpdater;
+use DataUpdateTools\Tools\SampleRequestUpdate;
+use DataUpdateTools\Tools\ProductFinderUpdate;
 
 
 class Plugin {
@@ -15,6 +16,9 @@ class Plugin {
 
         // Register SampleRequestUpdate tool
         (new SampleRequestUpdate())->register();
+
+        // Register ProductFinderUpdate tool
+        (new ProductFinderUpdate())->register();
 
     }
 }

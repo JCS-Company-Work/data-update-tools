@@ -1,6 +1,6 @@
 <?php
 
-namespace DataUpdateTools\Tools\JsonUpdater;
+namespace DataUpdateTools\Tools;
 
 class JsonUpdater {
 
