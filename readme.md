@@ -62,3 +62,11 @@ Triggers an update of the combined tile data through the Resources API.
 
 - `src/Tools/JsonUpdater/JsonUpdater.php` – shortcode, asset enqueue, AJAX handler
 - `assets/json-updater.js` – button click handling and outcome message
+
+### Florim UK Update
+
+Add the `[florimuk_update]` shortcode to a page. Select **Florim UK** and click **Update Tile Data** to regenerate Florim UK data from Google Sheets. The **Refresh all resources** option regenerates all resources instead.
+
+The AJAX handler checks its nonce and requires the `edit_posts` capability. It uses `ResourcesApi::updateResource()` to call `PUT /api/florimuk`, where the Resources API reads and formats the sheet data. Refreshing all resources uses `ResourcesApi::refreshAllResources()`.
+
+The server needs `FLORIMUK_API_TOKEN` for the Florim UK update and `RESOURCE_API_TOKEN` for refresh-all, as well as a reachable Resources API configured with Google Sheets access. Users must be logged in.

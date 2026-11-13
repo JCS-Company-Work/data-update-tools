@@ -13,4 +13,14 @@ class ResourcesApi {
             throw self::$throw;
         }
     }
+
+    public function refreshAllResources(): array {
+        self::$calls[] = [ 'refreshAllResources' => true ];
+
+        if ( self::$throw ) {
+            throw self::$throw;
+        }
+
+        return [];
+    }
 }

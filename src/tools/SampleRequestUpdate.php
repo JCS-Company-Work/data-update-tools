@@ -12,7 +12,7 @@ class SampleRequestUpdate {
     /**
      * Supported brand values for the sample request update.
      */
-    private const BRANDS = [ 'all', 'pt', 'pp', 'tm', 'florim', 'florimuk', 'domus', 'emilgroup' ];
+    private const BRANDS = [ 'all', 'pt', 'pp', 'tm', 'florim', 'florimuk', 'domus', 'emilgroup', 'refresh-all' ];
 
     /**
      * Register the tool with WordPress.
@@ -56,6 +56,7 @@ class SampleRequestUpdate {
                         <option value="florimuk">Florim UK</option>
                         <option value="domus">Living Ceramics</option>
                         <option value="emilgroup">Emilgroup</option>
+                        <option value="refresh-all">Refresh all resources</option>
                     </select>
                     <button id="sample-save-json" type="button">Update Tile Data</button>
                     <span class="dupt-spinner"></span>
@@ -79,6 +80,19 @@ class SampleRequestUpdate {
 
         if ( ! in_array( $brand, self::BRANDS, true ) ) {
             wp_send_json_error( [ 'message' => 'Unsupported brand.' ], 400 );
+        }
+
+        if ( $brand === 'refresh-all' ) {
+            require_once ABSPATH . 'office/shared/ResourcesApi.php';
+
+            try {
+                ( new \ResourcesApi() )->refreshAllResources();
+            } catch ( \Throwable $e ) {
+                error_log( 'All resources refresh failed: ' . $e->__toString() );
+                wp_send_json_error( [ 'message' => $e->getMessage() ], 500 );
+            }
+
+            wp_send_json_success( [ 'message' => 'All resources refreshed successfully.' ] );
         }
 
         // The samples tool's composer autoload uses an absolute path from another machine, so map the namespace here.

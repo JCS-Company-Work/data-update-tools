@@ -7,6 +7,7 @@ use DataUpdateTools\Plugin;
 use DataUpdateTools\Tools\JsonUpdater;
 use DataUpdateTools\Tools\ProductFinderUpdate;
 use DataUpdateTools\Tools\SampleRequestUpdate;
+use DataUpdateTools\Tools\FlorimukUpdate;
 
 class ToolsTest extends ToolTestCase {
 
@@ -15,6 +16,7 @@ class ToolsTest extends ToolTestCase {
             'json updater'          => [ JsonUpdater::class, 'json_updater_trigger', 'json_updater', 'toolType', 'allbrands' ],
             'sample request update' => [ SampleRequestUpdate::class, 'sample_request_update_trigger', 'sample_request_update', 'toolType', 'pt' ],
             'product finder update' => [ ProductFinderUpdate::class, 'product_finder_update_trigger', 'product_finder_update', 'brand', 'porcelaintiles' ],
+            'florimuk update'       => [ FlorimukUpdate::class, 'florimuk_update_trigger', 'florimuk_update', 'updateType', 'florimuk' ],
         ];
     }
 
@@ -126,6 +128,50 @@ class ToolsTest extends ToolTestCase {
             [ [ 'path' => 'product-finder/tailormade', 'resourceType' => 'product-finder', 'brand' => 'tailormade', 'tokenGroup' => 'product-finder' ] ],
             \ResourcesApi::$calls
         );
+    }
+
+    public function test_florimuk_update_calls_florimuk_endpoint(): void {
+        $_POST['updateType'] = 'florimuk';
+
+        $response = $this->respond( [ new FlorimukUpdate(), 'handle_request' ] );
+
+        $this->assertTrue( $response->success );
+        $this->assertSame(
+            [ [ 'path' => 'florimuk', 'resourceType' => 'florimuk', 'brand' => 'florimuk', 'tokenGroup' => 'florimuk' ] ],
+            \ResourcesApi::$calls
+        );
+    }
+
+    public function test_florimuk_update_can_refresh_all_resources(): void {
+        $_POST['updateType'] = 'refresh-all';
+
+        $response = $this->respond( [ new FlorimukUpdate(), 'handle_request' ] );
+
+        $this->assertTrue( $response->success );
+        $this->assertSame( 'All resources refreshed successfully.', $response->data['message'] );
+        $this->assertSame( [ [ 'refreshAllResources' => true ] ], \ResourcesApi::$calls );
+    }
+
+    public function test_florimuk_update_reports_api_failures(): void {
+        \ResourcesApi::$throw = new \RuntimeException( 'API returned HTTP 500' );
+        $_POST['updateType'] = 'florimuk';
+
+        $response = $this->respond( [ new FlorimukUpdate(), 'handle_request' ] );
+
+        $this->assertFalse( $response->success );
+        $this->assertSame( 500, $response->status );
+        $this->assertSame( 'API returned HTTP 500', $response->data['message'] );
+    }
+
+    public function test_florimuk_refresh_all_reports_api_failures(): void {
+        \ResourcesApi::$throw = new \RuntimeException( 'Refresh failed' );
+        $_POST['updateType'] = 'refresh-all';
+
+        $response = $this->respond( [ new FlorimukUpdate(), 'handle_request' ] );
+
+        $this->assertFalse( $response->success );
+        $this->assertSame( 500, $response->status );
+        $this->assertSame( 'Refresh failed', $response->data['message'] );
     }
 
     public function test_api_failure_is_reported_as_error(): void {

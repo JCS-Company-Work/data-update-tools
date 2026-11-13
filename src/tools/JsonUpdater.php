@@ -12,7 +12,7 @@ class JsonUpdater {
     /**
      * Supported tool types for the JSON updater.
      */
-    private const TOOL_TYPES = ['allbrands', 'allpending'];
+    private const TOOL_TYPES = ['allbrands', 'allpending', 'refresh-all'];
 
     /**
      * Register the JSON updater tool with WordPress.
@@ -52,6 +52,7 @@ class JsonUpdater {
                     <select name="brand" id="brand-select">
                         <option value="allbrands">All (excluding pending)</option>
                         <option value="allpending">All (including pending)</option>
+                        <option value="refresh-all">Refresh all resources</option>
                     </select>
                     <button id="save-json" type="button">Update Tile Data</button>
                     <span class="dupt-spinner"></span>
@@ -86,6 +87,12 @@ class JsonUpdater {
 
         // Attempt to update the resource using the Resources API
         try {
+            if ( $tool_type === 'refresh-all' ) {
+                ( new \ResourcesApi() )->refreshAllResources();
+
+                wp_send_json_success( [ 'message' => 'All resources refreshed successfully.' ] );
+            }
+
             ( new \ResourcesApi() )->updateResource( 'resources/combined-data/' . $tool_type, 'combined-data', '', 'combined-data' );
         } catch ( \Throwable $e ) {
             error_log( 'JSON updater failed: ' . $e->__toString() );

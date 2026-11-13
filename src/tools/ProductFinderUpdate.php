@@ -12,7 +12,7 @@ class ProductFinderUpdate {
     /**
      * Supported brands for the product finder update.
      */
-    private const BRANDS = [ 'porcelaintiles', 'tailormade' ];
+    private const BRANDS = [ 'porcelaintiles', 'tailormade', 'refresh-all' ];
 
     /**
      * Register the tool with WordPress.
@@ -48,6 +48,7 @@ class ProductFinderUpdate {
                     <select name="brand" id="product-finder-brand-select">
                         <option value="porcelaintiles">Porcelain Tiles</option>
                         <option value="tailormade">TailorMade</option>
+                        <option value="refresh-all">Refresh all resources</option>
                     </select>
                     <button id="product-finder-save-json" type="button">Update Tile Filter Data</button>
                     <span class="dupt-spinner"></span>
@@ -76,6 +77,11 @@ class ProductFinderUpdate {
         require_once ABSPATH . 'office/shared/ResourcesApi.php';
 
         try {
+            if ( $brand === 'refresh-all' ) {
+                ( new \ResourcesApi() )->refreshAllResources();
+
+                wp_send_json_success( [ 'message' => 'All resources refreshed successfully.' ] );
+            }
 
             ( new \ResourcesApi() )->updateResource( 'product-finder/' . $brand, 'product-finder', $brand, 'product-finder' );
 
