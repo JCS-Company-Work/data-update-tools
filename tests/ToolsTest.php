@@ -78,6 +78,33 @@ class ToolsTest extends ToolTestCase {
     /**
      * @dataProvider tools
      */
+    public function test_allows_hr_manager_without_edit_posts( string $class, string $action, string $shortcode, string $field, string $brand ): void {
+        Functions\when( 'current_user_can' )->justReturn( false );
+        Functions\when( 'wp_get_current_user' )->justReturn( (object) [ 'roles' => [ 'erp_hr_manager' ] ] );
+        \Samples\Classes\GoogleSheets::$result = 'Update successful';
+        $_POST[ $field ] = $brand;
+
+        $response = $this->respond( [ new $class(), 'handle_request' ] );
+
+        $this->assertTrue( $response->success );
+    }
+
+    /**
+     * @dataProvider tools
+     */
+    public function test_preserves_editor_access( string $class, string $action, string $shortcode, string $field, string $brand ): void {
+        Functions\when( 'current_user_can' )->alias( fn( $capability ) => $capability === 'edit_posts' );
+        \Samples\Classes\GoogleSheets::$result = 'Update successful';
+        $_POST[ $field ] = $brand;
+
+        $response = $this->respond( [ new $class(), 'handle_request' ] );
+
+        $this->assertTrue( $response->success );
+    }
+
+    /**
+     * @dataProvider tools
+     */
     public function test_checks_nonce_with_the_tool_action( string $class, string $action, string $shortcode, string $field, string $brand ): void {
         $checked = [];
         Functions\when( 'check_ajax_referer' )->alias( function ( ...$args ) use ( &$checked ) {

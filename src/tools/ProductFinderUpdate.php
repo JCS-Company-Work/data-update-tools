@@ -64,7 +64,7 @@ class ProductFinderUpdate {
 
         check_ajax_referer( self::ACTION, 'nonce' );
 
-        if ( ! current_user_can( 'edit_posts' ) ) {
+        if ( ! current_user_can( 'edit_posts' ) && ! in_array( 'erp_hr_manager', wp_get_current_user()->roles, true ) ) {
             wp_send_json_error( [ 'message' => 'You do not have permission to do this.' ], 403 );
         }
 

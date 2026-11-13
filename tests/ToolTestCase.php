@@ -23,6 +23,7 @@ abstract class ToolTestCase extends TestCase {
         Functions\when( 'wp_create_nonce' )->justReturn( 'nonce' );
         Functions\when( 'check_ajax_referer' )->justReturn( 1 );
         Functions\when( 'current_user_can' )->justReturn( true );
+        Functions\when( 'wp_get_current_user' )->justReturn( (object) [ 'roles' => [] ] );
         Functions\when( 'wp_send_json_success' )->alias(
             fn( $data = [], $status = 200 ) => throw new JsonResponse( true, $data, $status )
         );

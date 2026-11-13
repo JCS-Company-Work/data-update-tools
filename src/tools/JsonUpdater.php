@@ -69,8 +69,8 @@ class JsonUpdater {
         // Check if the request is an AJAX request
         check_ajax_referer( self::ACTION, 'nonce' );
 
-        // Check if the current user has permission to edit posts
-        if ( ! current_user_can( 'edit_posts' ) ) {
+        // Check if the current user has permission to update data.
+        if ( ! current_user_can( 'edit_posts' ) && ! in_array( 'erp_hr_manager', wp_get_current_user()->roles, true ) ) {
             wp_send_json_error( [ 'message' => 'You do not have permission to do this.' ], 403 );
         }
 

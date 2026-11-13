@@ -31,6 +31,10 @@ Set the repository variable `LIVE_DEPLOY_PATH` to the absolute path of this plug
 
 The server must also have `office/shared/ResourcesApi.php` and its API configuration available; they are outside this plugin and are not deployed by this workflow.
 
+## Permissions
+
+All update tools require a valid nonce and either the `edit_posts` capability or the HR Manager (`erp_hr_manager`) role. This permission includes the refresh-all option.
+
 ## Tools
 
 ### JSON Updater
@@ -48,7 +52,7 @@ Triggers an update of the combined tile data through the Resources API.
 
 1. The shortcode enqueues `assets/json-updater.js` and passes it the AJAX URL, action name and a nonce.
 2. Clicking the button POSTs `action=json_updater_trigger`, `nonce` and `toolType` to `admin-ajax.php`.
-3. `JsonUpdater::handle_request()` verifies the nonce, requires the `edit_posts` capability and validates `toolType`.
+3. `JsonUpdater::handle_request()` verifies the nonce, checks the update permission and validates `toolType`.
 4. It then calls `ResourcesApi::updateResource()` (`office/shared/ResourcesApi.php`) with `resources/combined-data/{toolType}`.
 5. The result is returned as a JSON success/error response and shown beside the button.
 
@@ -67,6 +71,6 @@ Triggers an update of the combined tile data through the Resources API.
 
 Add the `[florimuk_update]` shortcode to a page. Select **Florim UK** and click **Update Tile Data** to regenerate Florim UK data from Google Sheets. The **Refresh all resources** option regenerates all resources instead.
 
-The AJAX handler checks its nonce and requires the `edit_posts` capability. It uses `ResourcesApi::updateResource()` to call `PUT /api/florimuk`, where the Resources API reads and formats the sheet data. Refreshing all resources uses `ResourcesApi::refreshAllResources()`.
+The AJAX handler checks its nonce and update permission. It uses `ResourcesApi::updateResource()` to call `PUT /api/florimuk`, where the Resources API reads and formats the sheet data. Refreshing all resources uses `ResourcesApi::refreshAllResources()`.
 
 The server needs `FLORIMUK_API_TOKEN` for the Florim UK update and `RESOURCE_API_TOKEN` for refresh-all, as well as a reachable Resources API configured with Google Sheets access. Users must be logged in.
