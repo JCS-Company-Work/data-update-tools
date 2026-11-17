@@ -29,7 +29,7 @@ Set these repository variables:
 
 Set the repository variable `LIVE_DEPLOY_PATH` to the absolute path of this plugin's directory, ending in `/data-update-tools` (not the parent plugins directory). The deployment uses `rsync --delete` to remove files in that directory which are no longer in the deployment; excluded files are preserved.
 
-The server must also have `office/shared/ResourcesApi.php` and its API configuration available; they are outside this plugin and are not deployed by this workflow.
+The server must also have the current `office/shared/ResourcesApi.php` and its API configuration available; they are outside this plugin and are not deployed by this workflow. Deploy its updated `refreshAllResources()` method separately, preserving the live server's API URL and token configuration.
 
 ## Permissions
 
@@ -72,5 +72,7 @@ Triggers an update of the combined tile data through the Resources API.
 Add the `[florimuk_update]` shortcode to a page. Select **Florim UK** and click **Update Tile Data** to regenerate Florim UK data from Google Sheets. The **Refresh all resources** option regenerates all resources instead.
 
 The AJAX handler checks its nonce and update permission. It uses `ResourcesApi::updateResource()` to call `PUT /api/florimuk`, where the Resources API reads and formats the sheet data. Refreshing all resources uses `ResourcesApi::refreshAllResources()`.
+
+All four tools stream refresh-all progress as each resource is updated. Once the refresh completes, the result lists each site's cache purge message or failure. PHP and web server buffering must allow streamed responses for progress to appear live.
 
 The server needs `FLORIMUK_API_TOKEN` for the Florim UK update and `RESOURCE_API_TOKEN` for refresh-all, as well as a reachable Resources API configured with Google Sheets access. Users must be logged in.

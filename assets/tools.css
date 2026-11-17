@@ -26,6 +26,7 @@
 .florimuk-update-wrapper .outcome-message {
   min-height: 1.5em;
   margin-top: 0.5em;
+  white-space: pre-line;
   opacity: 0;
   transition: opacity 0.3s ease;
 }

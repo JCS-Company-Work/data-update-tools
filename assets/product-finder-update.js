@@ -10,6 +10,9 @@ let pfOutcomeTimer;
 
 if (pfButton && pfSelect && pfOutcome && pfSpinner) {
   pfButton.addEventListener("click", async () => {
+    const isRefreshAll = pfSelect.value === "refresh-all";
+    clearTimeout(pfOutcomeTimer);
+    if (isRefreshAll) pfOutcome.textContent = "";
     pfButton.disabled = true;
     pfSpinner.classList.add("is-active");
     pfOutcome.classList.remove("is-active");
@@ -23,6 +26,11 @@ if (pfButton && pfSelect && pfOutcome && pfSpinner) {
           brand: pfSelect.value,
         }),
       });
+      if (isRefreshAll) {
+        await window.duptRefreshStream.display(response, pfOutcome);
+        return;
+      }
+
       const result = await response.json();
 
       if (!result.success) {
@@ -31,7 +39,11 @@ if (pfButton && pfSelect && pfOutcome && pfSpinner) {
 
       showPfOutcome(result.data.message, true);
     } catch (error) {
-      showPfOutcome(error.message, false);
+      if (isRefreshAll) {
+        window.duptRefreshStream.showError(pfOutcome, error.message);
+      } else {
+        showPfOutcome(error.message, false);
+      }
     } finally {
       pfButton.disabled = false;
       pfSpinner.classList.remove("is-active");

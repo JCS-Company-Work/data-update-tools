@@ -3,14 +3,14 @@
  * Plugin Name: PT Hub Data Update Tools
  * Description: Data update tools for PT Hub.
  * Author: Porcelain Tiles
- * Version: 1.0.0
+ * Version: 1.0.1
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'DUPT_VERSION', '1.0.0' );
+define( 'DUPT_VERSION', '1.0.1' );
 define( 'DUPT_PATH', plugin_dir_path( __FILE__ ) );
 define( 'DUPT_URL', plugin_dir_url( __FILE__ ) );
 

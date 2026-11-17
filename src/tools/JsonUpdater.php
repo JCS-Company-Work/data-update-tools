@@ -36,7 +36,8 @@ class JsonUpdater {
     public function render_shortcode() {
 
         // Enqueue the JSON updater script
-        wp_enqueue_script( 'dupt-json-updater', DUPT_URL . 'assets/json-updater.js', [], DUPT_VERSION, true );
+        wp_enqueue_script( 'dupt-refresh-stream', DUPT_URL . 'assets/refresh-stream.js', [], DUPT_VERSION, true );
+        wp_enqueue_script( 'dupt-json-updater', DUPT_URL . 'assets/json-updater.js', [ 'dupt-refresh-stream' ], DUPT_VERSION, true );
 
         wp_enqueue_style( 'dupt-tools', DUPT_URL . 'assets/tools.css', [], DUPT_VERSION );
 
@@ -82,17 +83,16 @@ class JsonUpdater {
             wp_send_json_error( [ 'message' => 'Unsupported update type.' ], 400 );
         }
 
+        if ( $tool_type === 'refresh-all' ) {
+            RefreshAll::stream();
+            return;
+        }
+
         // Include the Resources API for handling the update request
         require_once ABSPATH . 'office/shared/ResourcesApi.php';
 
         // Attempt to update the resource using the Resources API
         try {
-            if ( $tool_type === 'refresh-all' ) {
-                ( new \ResourcesApi() )->refreshAllResources();
-
-                wp_send_json_success( [ 'message' => 'All resources refreshed successfully.' ] );
-            }
-
             ( new \ResourcesApi() )->updateResource( 'resources/combined-data/' . $tool_type, 'combined-data', '', 'combined-data' );
         } catch ( \Throwable $e ) {
             error_log( 'JSON updater failed: ' . $e->__toString() );

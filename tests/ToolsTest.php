@@ -46,7 +46,7 @@ class ToolsTest extends ToolTestCase {
      * @dataProvider tools
      */
     public function test_shortcode_enqueues_assets_and_returns_markup( string $class, string $action ): void {
-        Functions\expect( 'wp_enqueue_script' )->once();
+        Functions\expect( 'wp_enqueue_script' )->twice();
         Functions\expect( 'wp_enqueue_style' )->once()->with( 'dupt-tools', \Mockery::type( 'string' ), [], 'test' );
         Functions\expect( 'wp_localize_script' )->once()->with(
             \Mockery::type( 'string' ),
@@ -169,13 +169,30 @@ class ToolsTest extends ToolTestCase {
         );
     }
 
-    public function test_florimuk_update_can_refresh_all_resources(): void {
-        $_POST['updateType'] = 'refresh-all';
+    /**
+     * @dataProvider tools
+     */
+    public function test_refresh_all_streams_resource_and_purge_events( string $class, string $action, string $shortcode, string $field ): void {
+        $_POST[ $field ] = 'refresh-all';
+        \ResourcesApi::$events = [
+            [ 'event' => 'resource_updated', 'resource' => 'combined-data/allbrands' ],
+            [ 'event' => 'completed', 'success' => true, 'cache_purge' => [
+                'hub' => [ 'success' => true, 'message' => 'Cache purged for Hub' ],
+            ] ],
+        ];
+        $output = '';
+        ob_start( static function ( $chunk ) use ( &$output ) {
+            $output .= $chunk;
+            return '';
+        } );
+        try {
+            $this->respond( [ new $class(), 'handle_request' ] );
+        } finally {
+            ob_end_flush();
+        }
 
-        $response = $this->respond( [ new FlorimukUpdate(), 'handle_request' ] );
-
-        $this->assertTrue( $response->success );
-        $this->assertSame( 'All resources refreshed successfully.', $response->data['message'] );
+        $lines = explode( "\n", trim( $output ) );
+        $this->assertSame( \ResourcesApi::$events, array_map( fn( $line ) => json_decode( $line, true ), $lines ) );
         $this->assertSame( [ [ 'refreshAllResources' => true ] ], \ResourcesApi::$calls );
     }
 
@@ -194,11 +211,17 @@ class ToolsTest extends ToolTestCase {
         \ResourcesApi::$throw = new \RuntimeException( 'Refresh failed' );
         $_POST['updateType'] = 'refresh-all';
 
-        $response = $this->respond( [ new FlorimukUpdate(), 'handle_request' ] );
-
-        $this->assertFalse( $response->success );
-        $this->assertSame( 500, $response->status );
-        $this->assertSame( 'Refresh failed', $response->data['message'] );
+        $output = '';
+        ob_start( static function ( $chunk ) use ( &$output ) {
+            $output .= $chunk;
+            return '';
+        } );
+        try {
+            $this->respond( [ new FlorimukUpdate(), 'handle_request' ] );
+        } finally {
+            ob_end_flush();
+        }
+        $this->assertSame( [ 'event' => 'failed', 'message' => 'Refresh failed' ], json_decode( trim( $output ), true ) );
     }
 
     public function test_api_failure_is_reported_as_error(): void {

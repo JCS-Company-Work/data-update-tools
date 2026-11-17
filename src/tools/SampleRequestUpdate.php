@@ -34,7 +34,8 @@ class SampleRequestUpdate {
      */
     public function render_shortcode() {
 
-        wp_enqueue_script( 'dupt-sample-request-update', DUPT_URL . 'assets/sample-request-update.js', [], DUPT_VERSION, true );
+        wp_enqueue_script( 'dupt-refresh-stream', DUPT_URL . 'assets/refresh-stream.js', [], DUPT_VERSION, true );
+        wp_enqueue_script( 'dupt-sample-request-update', DUPT_URL . 'assets/sample-request-update.js', [ 'dupt-refresh-stream' ], DUPT_VERSION, true );
 
         wp_enqueue_style( 'dupt-tools', DUPT_URL . 'assets/tools.css', [], DUPT_VERSION );
 
@@ -83,16 +84,8 @@ class SampleRequestUpdate {
         }
 
         if ( $brand === 'refresh-all' ) {
-            require_once ABSPATH . 'office/shared/ResourcesApi.php';
-
-            try {
-                ( new \ResourcesApi() )->refreshAllResources();
-            } catch ( \Throwable $e ) {
-                error_log( 'All resources refresh failed: ' . $e->__toString() );
-                wp_send_json_error( [ 'message' => $e->getMessage() ], 500 );
-            }
-
-            wp_send_json_success( [ 'message' => 'All resources refreshed successfully.' ] );
+            RefreshAll::stream();
+            return;
         }
 
         // The samples tool's composer autoload uses an absolute path from another machine, so map the namespace here.

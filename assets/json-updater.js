@@ -8,6 +8,9 @@ let outcomeTimer;
 
 if (button && select && outcome && spinner) {
   button.addEventListener("click", async () => {
+    const isRefreshAll = select.value === "refresh-all";
+    clearTimeout(outcomeTimer);
+    if (isRefreshAll) outcome.textContent = "";
     button.disabled = true;
     spinner.classList.add("is-active");
     outcome.classList.remove("is-active");
@@ -21,6 +24,11 @@ if (button && select && outcome && spinner) {
           toolType: select.value,
         }),
       });
+      if (isRefreshAll) {
+        await window.duptRefreshStream.display(response, outcome);
+        return;
+      }
+
       const result = await response.json();
 
       if (!result.success) {
@@ -29,7 +37,11 @@ if (button && select && outcome && spinner) {
 
       showOutcome(result.data.message, true);
     } catch (error) {
-      showOutcome(error.message, false);
+      if (isRefreshAll) {
+        window.duptRefreshStream.showError(outcome, error.message);
+      } else {
+        showOutcome(error.message, false);
+      }
     } finally {
       button.disabled = false;
       spinner.classList.remove("is-active");

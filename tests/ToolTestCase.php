@@ -14,6 +14,7 @@ abstract class ToolTestCase extends TestCase {
 
         \ResourcesApi::$calls = [];
         \ResourcesApi::$throw = null;
+        \ResourcesApi::$events = [];
         $_POST = [];
         ini_set( 'error_log', '/dev/null' );
 
@@ -24,6 +25,8 @@ abstract class ToolTestCase extends TestCase {
         Functions\when( 'check_ajax_referer' )->justReturn( 1 );
         Functions\when( 'current_user_can' )->justReturn( true );
         Functions\when( 'wp_get_current_user' )->justReturn( (object) [ 'roles' => [] ] );
+        Functions\when( 'wp_json_encode' )->alias( fn( $value ) => json_encode( $value ) );
+        Functions\when( 'wp_die' )->alias( fn() => throw new JsonResponse( true, [], 200 ) );
         Functions\when( 'wp_send_json_success' )->alias(
             fn( $data = [], $status = 200 ) => throw new JsonResponse( true, $data, $status )
         );

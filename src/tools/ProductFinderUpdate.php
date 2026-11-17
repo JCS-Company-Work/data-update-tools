@@ -34,7 +34,8 @@ class ProductFinderUpdate {
      */
     public function render_shortcode() {
 
-        wp_enqueue_script( 'dupt-product-finder-update', DUPT_URL . 'assets/product-finder-update.js', [], DUPT_VERSION, true );
+        wp_enqueue_script( 'dupt-refresh-stream', DUPT_URL . 'assets/refresh-stream.js', [], DUPT_VERSION, true );
+        wp_enqueue_script( 'dupt-product-finder-update', DUPT_URL . 'assets/product-finder-update.js', [ 'dupt-refresh-stream' ], DUPT_VERSION, true );
         wp_enqueue_style( 'dupt-tools', DUPT_URL . 'assets/tools.css', [], DUPT_VERSION );
 
         wp_localize_script( 'dupt-product-finder-update', 'productFinderUpdateConfig', [
@@ -74,15 +75,14 @@ class ProductFinderUpdate {
             wp_send_json_error( [ 'message' => 'Unsupported brand.' ], 400 );
         }
 
+        if ( $brand === 'refresh-all' ) {
+            RefreshAll::stream();
+            return;
+        }
+
         require_once ABSPATH . 'office/shared/ResourcesApi.php';
 
         try {
-            if ( $brand === 'refresh-all' ) {
-                ( new \ResourcesApi() )->refreshAllResources();
-
-                wp_send_json_success( [ 'message' => 'All resources refreshed successfully.' ] );
-            }
-
             ( new \ResourcesApi() )->updateResource( 'product-finder/' . $brand, 'product-finder', $brand, 'product-finder' );
 
         } catch ( \Throwable $e ) {

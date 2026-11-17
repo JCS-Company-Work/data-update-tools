@@ -35,7 +35,8 @@ class FlorimukUpdate {
     public function render_shortcode() {
 
         // Enqueue the necessary scripts and styles for the plugin.
-        wp_enqueue_script( 'dupt-florimuk-update', DUPT_URL . 'assets/florimuk-update.js', [], DUPT_VERSION, true );
+        wp_enqueue_script( 'dupt-refresh-stream', DUPT_URL . 'assets/refresh-stream.js', [], DUPT_VERSION, true );
+        wp_enqueue_script( 'dupt-florimuk-update', DUPT_URL . 'assets/florimuk-update.js', [ 'dupt-refresh-stream' ], DUPT_VERSION, true );
         
         // Enqueue the necessary styles for the plugin.
         wp_enqueue_style( 'dupt-tools', DUPT_URL . 'assets/tools.css', [], DUPT_VERSION );
@@ -78,23 +79,21 @@ class FlorimukUpdate {
             wp_send_json_error( [ 'message' => 'Unsupported update type.' ], 400 );
         }
 
+        if ( $update_type === 'refresh-all' ) {
+            RefreshAll::stream();
+            return;
+        }
+
         // Perform the requested update based on the update type.
         try {
             require_once ABSPATH . 'office/shared/ResourcesApi.php';
 
-            if ( $update_type === 'refresh-all' ) {
-                ( new \ResourcesApi() )->refreshAllResources();
-            } else {
-                ( new \ResourcesApi() )->updateResource( 'florimuk', 'florimuk', 'florimuk', 'florimuk' );
-            }
+            ( new \ResourcesApi() )->updateResource( 'florimuk', 'florimuk', 'florimuk', 'florimuk' );
         } catch ( \Throwable $e ) {
             error_log( 'Florim UK update failed: ' . $e->__toString() );
             wp_send_json_error( [ 'message' => $e->getMessage() ], 500 );
         }
 
-        $message = $update_type === 'refresh-all'
-            ? 'All resources refreshed successfully.'
-            : 'Florim UK data updated successfully.';
-        wp_send_json_success( [ 'message' => $message ] );
+        wp_send_json_success( [ 'message' => 'Florim UK data updated successfully.' ] );
     }
 }

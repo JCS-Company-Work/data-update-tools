@@ -15,6 +15,9 @@ if (sampleButton && sampleSelect && sampleOutcome && sampleSpinner) {
       return;
     }
 
+    const isRefreshAll = sampleSelect.value === "refresh-all";
+    clearTimeout(sampleOutcomeTimer);
+    if (isRefreshAll) sampleOutcome.textContent = "";
     sampleButton.disabled = true;
     sampleSpinner.classList.add("is-active");
     sampleOutcome.classList.remove("is-active");
@@ -28,6 +31,11 @@ if (sampleButton && sampleSelect && sampleOutcome && sampleSpinner) {
           toolType: sampleSelect.value,
         }),
       });
+      if (isRefreshAll) {
+        await window.duptRefreshStream.display(response, sampleOutcome);
+        return;
+      }
+
       const result = await response.json();
 
       if (!result.success) {
@@ -36,7 +44,11 @@ if (sampleButton && sampleSelect && sampleOutcome && sampleSpinner) {
 
       showSampleOutcome(result.data.message, true);
     } catch (error) {
-      showSampleOutcome(error.message, false);
+      if (isRefreshAll) {
+        window.duptRefreshStream.showError(sampleOutcome, error.message);
+      } else {
+        showSampleOutcome(error.message, false);
+      }
     } finally {
       sampleButton.disabled = false;
       sampleSpinner.classList.remove("is-active");
