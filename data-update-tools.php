@@ -20,7 +20,7 @@ if ( file_exists( DUPT_PATH . 'vendor/autoload.php' ) ) {
 }
 
 // Initilise the plugin
-use DataUpdateTools\Tools\DataUpdater;
+use DataUpdateTools\DataUpdater;
 
 // Register the data updater tool with WordPress
 ( new DataUpdater() )->register();
