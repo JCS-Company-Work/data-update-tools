@@ -37,6 +37,8 @@ All update tools require a valid nonce and either the `edit_posts` capability or
 
 ## Tools
 
+The registered `[data_updater]` tool refreshes all resources and displays each update live, followed by the cache purge results. The older individual tools described below are no longer registered.
+
 ### JSON Updater
 
 Triggers an update of the combined tile data through the Resources API.
@@ -73,6 +75,6 @@ Add the `[florimuk_update]` shortcode to a page. Select **Florim UK** and click 
 
 The AJAX handler checks its nonce and update permission. It uses `ResourcesApi::updateResource()` to call `PUT /api/florimuk`, where the Resources API reads and formats the sheet data. Refreshing all resources uses `ResourcesApi::refreshAllResources()`.
 
-All four tools stream refresh-all progress as each resource is updated. Once the refresh completes, the result lists each site's cache purge message or failure. PHP and web server buffering must allow streamed responses for progress to appear live.
+The updater streams refresh-all progress as each resource is updated, grouping resources by tool and marking successes and failures. Resource messages are displayed at least 200 ms apart, even when they arrive together. Cache purge results appear separately at the end, including after a partial refresh failure. PHP and web server buffering must allow streamed responses for progress to appear live.
 
 The server needs `FLORIMUK_API_TOKEN` for the Florim UK update and `RESOURCE_API_TOKEN` for refresh-all, as well as a reachable Resources API configured with Google Sheets access. Users must be logged in.

@@ -21,6 +21,7 @@
 }
 
 .json-updater-wrapper .outcome-message,
+.data-updater-wrapper .outcome-message,
 .sample-request-update-wrapper .outcome-message,
 .product-finder-update-wrapper .outcome-message,
 .florimuk-update-wrapper .outcome-message {
@@ -32,6 +33,7 @@
 }
 
 .json-updater-wrapper .outcome-message.is-active,
+.data-updater-wrapper .outcome-message.is-active,
 .sample-request-update-wrapper .outcome-message.is-active,
 .product-finder-update-wrapper .outcome-message.is-active,
 .florimuk-update-wrapper .outcome-message.is-active {

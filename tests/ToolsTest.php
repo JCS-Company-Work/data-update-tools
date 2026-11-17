@@ -4,6 +4,7 @@ namespace DataUpdateTools\Tests;
 
 use Brain\Monkey\Functions;
 use DataUpdateTools\Plugin;
+use DataUpdateTools\Tools\DataUpdater;
 use DataUpdateTools\Tools\JsonUpdater;
 use DataUpdateTools\Tools\ProductFinderUpdate;
 use DataUpdateTools\Tools\SampleRequestUpdate;
@@ -34,12 +35,10 @@ class ToolsTest extends ToolTestCase {
         $tool->register_shortcode();
     }
 
-    public function test_plugin_boot_registers_every_tool(): void {
+    public function test_plugin_boot_registers_data_updater(): void {
         ( new Plugin() )->boot();
 
-        foreach ( self::tools() as [ , $action ] ) {
-            $this->assertNotFalse( has_action( 'wp_ajax_' . $action ), "$action not registered" );
-        }
+        $this->assertNotFalse( has_action( 'wp_ajax_data_updater_trigger' ) );
     }
 
     /**
@@ -167,6 +166,40 @@ class ToolsTest extends ToolTestCase {
             [ [ 'path' => 'florimuk', 'resourceType' => 'florimuk', 'brand' => 'florimuk', 'tokenGroup' => 'florimuk' ] ],
             \ResourcesApi::$calls
         );
+    }
+
+    public function test_data_updater_streams_each_resource_and_purge_result_once(): void {
+        \ResourcesApi::$events = [
+            [ 'event' => 'resource_updated', 'resource' => 'combined-data/allbrands' ],
+            [ 'event' => 'completed', 'success' => true, 'cache_purge' => [
+                'hub' => [ 'success' => true, 'message' => 'Cache purged for Hub' ],
+                'porcelain-tiles' => [ 'success' => true, 'message' => 'Cache purged for Porcelain Tiles' ],
+            ] ],
+        ];
+        $output = '';
+        ob_start( static function ( $chunk ) use ( &$output ) {
+            $output .= $chunk;
+            return '';
+        } );
+        try {
+            $this->respond( [ new DataUpdater(), 'handle_request' ] );
+        } finally {
+            ob_end_flush();
+        }
+
+        $lines = explode( "\n", trim( $output ) );
+        $this->assertSame( \ResourcesApi::$events, array_map( fn( $line ) => json_decode( $line, true ), $lines ) );
+        $this->assertSame( [ [ 'refreshAllResources' => true ] ], \ResourcesApi::$calls );
+    }
+
+    public function test_data_updater_rejects_users_without_permission(): void {
+        Functions\when( 'current_user_can' )->justReturn( false );
+
+        $response = $this->respond( [ new DataUpdater(), 'handle_request' ] );
+
+        $this->assertFalse( $response->success );
+        $this->assertSame( 403, $response->status );
+        $this->assertSame( [], \ResourcesApi::$calls );
     }
 
     /**
